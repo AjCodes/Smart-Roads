@@ -1,0 +1,16 @@
+# Dependencies - DO NOT COMMIT THESE!
+node_modules/
+package-lock.json
+
+# Environment variables
+.env
+.env.local
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+
+# Firebase credentials
+firebase-adminsdk-*.json
