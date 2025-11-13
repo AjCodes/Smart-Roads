@@ -1,4 +1,4 @@
-# 🚦 Smart Roads – Traffic Optimization System
+# 🚦 Smart Roads – Traffic Optimization System junior
 
 A smart traffic-management prototype using **Arduino**, **Firebase**, **Node.js**, and **React**.  
 The system detects traffic density, analyzes it with simple AI logic, and automatically controls traffic lights.
