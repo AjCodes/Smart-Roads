@@ -48,7 +48,7 @@ cd backend
 npm install
 npm run dev
 ```
-See [backend/README.md](backend/README.md) for details.
+See [backend/README.md](backend/README-backend.md) for details.
 
 ### Dashboard
 ```bash
@@ -56,11 +56,11 @@ cd dashboard
 pip install -r requirements.txt
 python app.py
 ```
-See [dashboard/README.md](dashboard/README.md) for details.
+See [dashboard/README.md](dashboard/README-dashboard.md) for details.
 
 ### Arduino
 Upload `ESP32/traffic_light.ino` using Arduino IDE.  
-See [ESP32/README.md](ESP32/README.md) for details.
+See [ESP32/README.md](ESP32/README-esp32.md) for details.
 
 ---
 
