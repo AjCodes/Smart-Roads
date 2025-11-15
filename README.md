@@ -84,7 +84,7 @@ See [ESP32/README.md](ESP32/README.md) for details.
 - 🚧 Arduino Integration (In Progress)
 - 🚧 Python Dashboard (In Progress)
 
-**Demo Date:** December 7, 2024
+**Demo Date:** December 7, 2025
 
 ---
 
