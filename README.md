@@ -105,7 +105,7 @@ See [ESP32/README.md](ESP32/README.md) for details.
 
 ## 📄 License
 
-MIT License - See [LICENSE.md](LICENSE.md) for details.
+MIT License - See [LICENSE.md](LICENSE.txt) for details.
 
 ---
 
