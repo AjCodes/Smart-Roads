@@ -1,6 +1,6 @@
 # 🚦 Smart Roads - AI Traffic Management System
 
-[![release](https://badgen.net/github/release/AjCodes/Smart-Roads)](https://github.com/AjCodes/Smart-Roads/releases)
+[![Latest Release](https://img.shields.io/github/v/release/AjCodes/Smart-Roads?cache=none)](https://github.com/AjCodes/Smart-Roads/releases)
 [![Backend](https://img.shields.io/badge/Backend-Complete-success)](https://github.com/AjCodes/Smart-Roads/tree/main/backend)
 [![Demo Date](https://img.shields.io/badge/Demo-Dec%207%2C%202024-blue)](https://github.com/AjCodes/Smart-Roads)
 
