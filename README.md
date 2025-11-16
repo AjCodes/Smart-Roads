@@ -2,7 +2,7 @@
 
 [![Latest Release](https://img.shields.io/github/v/release/AjCodes/Smart-Roads?cache=none)](https://github.com/AjCodes/Smart-Roads/releases)
 [![Backend](https://img.shields.io/badge/Backend-Complete-success)](https://github.com/AjCodes/Smart-Roads/tree/main/backend)
-[![Demo Date](https://img.shields.io/badge/Demo-Dec%207%2C%202024-blue)](https://github.com/AjCodes/Smart-Roads)
+[![Demo Date](https://img.shields.io/badge/Demo-Dec%207%2C%202025-blue)](https://github.com/AjCodes/Smart-Roads)
 
 An intelligent traffic light system using ESP32 microcontroller, AI decision-making, and real-time data to optimize traffic flow.
 
