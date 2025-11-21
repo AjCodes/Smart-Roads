@@ -2,9 +2,9 @@
 
 [![Latest Release](https://img.shields.io/github/v/release/AjCodes/Smart-Roads?cache=none)](https://github.com/AjCodes/Smart-Roads/releases)
 [![Backend](https://img.shields.io/badge/Backend-Complete-success)](https://github.com/AjCodes/Smart-Roads/tree/main/backend)
-[![Demo Date](https://img.shields.io/badge/Demo-Dec%207%2C%202024-blue)](https://github.com/AjCodes/Smart-Roads)
+[![Demo Date](https://img.shields.io/badge/Demo-Dec%207%2C%202025-blue)](https://github.com/AjCodes/Smart-Roads)
 
-An intelligent traffic light system using Arduino sensors, AI decision-making, and real-time data to optimize traffic flow.
+An intelligent traffic light system using ESP32 microcontroller, AI decision-making, and real-time data to optimize traffic flow.
 
 ---
 
@@ -14,16 +14,16 @@ Smart Roads uses **ultrasonic sensors** to detect traffic density, analyzes the 
 
 **How it works:**
 1. Sensors detect cars in each lane
-2. Arduino sends data to backend API
+2. ESP32 sends data to backend API
 3. AI analyzes and decides which lane gets green light
-4. Arduino controls the traffic lights
+4. ESP32 controls the traffic lights
 5. Python dashboard visualizes real-time data
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Hardware:** Arduino/ESP32 + Ultrasonic Sensors + LEDs
+- **Hardware:** ESP32 + Ultrasonic Sensors + LEDs
 - **Backend:** Node.js + Express + Firebase
 - **Database:** Firebase Realtime Database
 - **Dashboard:** Python (Flask/Streamlit)
@@ -36,7 +36,7 @@ Smart Roads uses **ultrasonic sensors** to detect traffic density, analyzes the 
 ```
 Smart-Roads/
 │
-├── ESP32/          # Arduino firmware (see ESP32/README.md)
+├── ESP32/          # ESP32 firmware (see ESP32/README.md)
 ├── backend/        # Node.js API (see backend/README.md)
 ├── dashboard/      # Python dashboard (see dashboard/README.md)
 └── README.md       # This file
@@ -62,8 +62,8 @@ python app.py
 ```
 See [dashboard/README.md](dashboard/README.md) for details.
 
-### Arduino
-Upload `ESP32/traffic_light.ino` using Arduino IDE.  
+### ESP32
+Upload `ESP32/traffic_light.ino` using ESP32 IDE.  
 See [ESP32/README.md](ESP32/README.md) for details.
 
 ---
@@ -74,7 +74,7 @@ See [ESP32/README.md](ESP32/README.md) for details.
 |------|------|
 | AJ | Backend & Database |
 | Junior | AI/ML Engineer |
-| Ethan | Hardware (Arduino) |
+| Ethan | Hardware (ESP32) |
 | Julia | Project Management & Dashboard |
 | Elias | Dashboard (Python) |
 
@@ -85,7 +85,7 @@ See [ESP32/README.md](ESP32/README.md) for details.
 - ✅ Backend API (100%)
 - ✅ AI Decision Engine (100%)
 - ✅ Firebase Database (100%)
-- 🚧 Arduino Integration (In Progress)
+- 🚧 ESP32 Integration (In Progress)
 - 🚧 Python Dashboard (In Progress)
 
 **Demo Date:** December 7, 2025
@@ -103,7 +103,7 @@ See [ESP32/README.md](ESP32/README.md) for details.
 
 - **Backend:** [backend/README.md](backend/README.md)
 - **Dashboard:** [dashboard/README.md](dashboard/README.md)
-- **Arduino:** [ESP32/README.md](ESP32/README.md)
+- **ESP32:** [ESP32/README.md](ESP32/README.md)
 
 ---
 
