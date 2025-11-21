@@ -1,4 +1,5 @@
 import { db } from '../config/firebase.js';
+import { analyzeTrafficAndDecide } from './decisionController.js';
 
 // POST /api/sensor-data - Receive sensor data from Arduino
 export const saveSensorData = async (req, res) => {
@@ -21,17 +22,30 @@ export const saveSensorData = async (req, res) => {
 
     console.log('📊 Sensor data saved:', sensorData);
 
+    // --- AI DECISION LOGIC ---
+    // Run AI analysis immediately
+    const decision = analyzeTrafficAndDecide(sensorData);
+
+    decision.timestamp = Date.now();
+    decision.createdAt = new Date().toISOString();
+
+    // Save decision to Firebase
+    await db.ref('decisions').push(decision);
+
+    console.log('🧠 AI Decision made immediately:', decision);
+
     res.status(201).json({
       success: true,
-      message: 'Sensor data saved successfully',
-      data: sensorData
+      message: 'Sensor data saved and decision generated',
+      data: sensorData,
+      decision: decision // Return decision immediately
     });
 
   } catch (error) {
-    console.error('❌ Error saving sensor data:', error);
+    console.error('❌ Error processing sensor data:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to save sensor data',
+      error: 'Failed to process sensor data',
       details: error.message
     });
   }

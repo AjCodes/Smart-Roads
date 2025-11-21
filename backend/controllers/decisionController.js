@@ -1,7 +1,7 @@
 import { db } from '../config/firebase.js';
 
 // Simple AI Logic: Give green light to the lane with most traffic (shortest distance)
-const analyzeTrafficAndDecide = (sensorData) => {
+export const analyzeTrafficAndDecide = (sensorData) => {
   const { lane1, lane2, lane3, lane4 } = sensorData;
 
   const lanes = [
@@ -56,7 +56,7 @@ export const generateDecision = async (req, res) => {
 
     // Run AI analysis
     const decision = analyzeTrafficAndDecide(latestSensorData);
-    
+
     decision.timestamp = Date.now();
     decision.createdAt = new Date().toISOString();
 
