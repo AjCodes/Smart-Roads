@@ -62,8 +62,8 @@ python app.py
 See [dashboard/README.md](dashboard/README.md) for details.
 
 ### ESP32
-Upload `ESP32/traffic_light.ino` using ESP32 IDE. 
-Simulation `python simulate_esp32.py`
+Upload `ESP32/traffic_light.ino` using ESP32 IDE.
+Simulation `python simulate_esp32.py`.
 See [ESP32/README.md](ESP32/README.md) for details.
 
 ---
