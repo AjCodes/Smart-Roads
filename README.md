@@ -57,13 +57,14 @@ See [backend/README.md](backend/README.md) for details.
 ### Dashboard
 ```bash
 cd dashboard
-pip install -r requirements.txt
 python app.py
 ```
 See [dashboard/README.md](dashboard/README.md) for details.
 
 ### ESP32
-Upload `ESP32/traffic_light.ino` using ESP32 IDE.  
+Upload `ESP32/traffic_light.ino` using ESP32 IDE.
+
+Simulation `python simulate_esp32.py`.
 See [ESP32/README.md](ESP32/README.md) for details.
 
 ---
