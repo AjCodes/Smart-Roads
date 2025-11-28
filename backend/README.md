@@ -22,9 +22,10 @@ FIREBASE_DATABASE_URL=https://your-project.firebaseio.com
 - Place it in this folder
 
 **4. Run server**
-```bash
-npm run dev
-```
+ ```bash
+ npm run dev
+ ```
+ *Runs with nodemon for auto-restart on changes.*
 
 ✅ Server starts at `http://localhost:5000`
 

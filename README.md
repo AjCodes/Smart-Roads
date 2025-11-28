@@ -45,27 +45,34 @@ Smart-Roads/
 ---
 
 ## 🚀 Quick Start
-
-### Backend
-```bash
-cd backend
-npm install
-npm run dev
-```
-See [backend/README.md](backend/README.md) for details.
-
-### Dashboard
-```bash
-cd dashboard
-python app.py
-```
-See [dashboard/README.md](dashboard/README.md) for details.
-
-### ESP32
-Upload `ESP32/traffic_light.ino` using ESP32 IDE.
-
-Simulation `python simulate_esp32.py`.
-See [ESP32/README.md](ESP32/README.md) for details.
+ 
+ ### Backend
+ ```bash
+ cd backend
+ npm install
+ npm run dev
+ ```
+ See [backend/README.md](backend/README.md) for details.
+ 
+ ### Dashboard
+ ```bash
+ cd dashboard
+ pip install -r requirements.txt
+ python app.py
+ ```
+ See [dashboard/README.md](dashboard/README.md) for details.
+ 
+ ### ESP32
+ **Note:** The current `simulate_esp32.py` is a **testing tool** only. Real hardware implementation will begin on Monday (Dec 1st).
+ 
+ **Simulation:**
+ ```bash
+ python simulate_esp32.py
+ ```
+ 
+ **Hardware:**
+ Upload `ESP32/src/main.cpp` using PlatformIO or Arduino IDE.
+ See [ESP32/README.md](ESP32/README.md) for details.
 
 ---
 
