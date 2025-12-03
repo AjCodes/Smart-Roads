@@ -1,4 +1,5 @@
 // Test script to verify all API endpoints
+// Simulates ESP32 sending sensor data with BME280 environmental sensors
 // Run with: node test-api.js
 
 const baseURL = 'http://localhost:5000';
@@ -37,12 +38,15 @@ async function runTests() {
   // Test 1: Health Check
   await testEndpoint('GET', '/health');
   
-  // Test 2: Send Sensor Data
+  // Test 2: Send Sensor Data (with BME280 environmental data)
   await testEndpoint('POST', '/api/sensor-data', {
     lane1: 45.5,
     lane2: 120.3,
     lane3: 80.7,
-    lane4: 200.0
+    lane4: 200.0,
+    temperature: 23.5,
+    humidity: 65.2,
+    pressure: 1013.2
   });
   
   // Test 3: Get Latest Sensor Data

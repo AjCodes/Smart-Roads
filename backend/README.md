@@ -33,10 +33,23 @@ FIREBASE_DATABASE_URL=https://your-project.firebaseio.com
 
 ## 📡 API Endpoints
 
-### 🤖 Arduino
+### 🤖 ESP32
 ```
-POST /api/sensor-data          # Send sensor readings
+POST /api/sensor-data          # Send sensor readings (lanes + environmental data)
 GET /api/decision/latest       # Get AI decision
+```
+
+**Sensor Data Format:**
+```json
+{
+  "lane1": 45,              // Distance in cm (required)
+  "lane2": 120,             // Distance in cm (required)
+  "lane3": 0,               // Distance in cm (required)
+  "lane4": 0,               // Distance in cm (required)
+  "temperature": 23.5,      // Temperature in °C (optional, BME280)
+  "humidity": 65.2,         // Humidity in % (optional, BME280)
+  "pressure": 1013.2        // Pressure in hPa (optional, BME280)
+}
 ```
 
 ### 📊 Dashboard
@@ -55,9 +68,24 @@ POST /api/decision/generate    # Trigger AI analysis
 
 ## 🧪 Test
 
-**Send sensor data:**
+### Automated Testing
+
+**Run all API tests:**
+```bash
+node test-api.js
+```
+
+**Simulate ESP32 continuous data (for dashboard testing):**
+```bash
+node simulate-esp32.js
+```
+This sends realistic sensor data every 3 seconds, perfect for testing the live dashboard.
+
+### Manual Testing
+
+**Send sensor data with environmental data:**
 ```powershell
-Invoke-RestMethod -Uri "http://localhost:5000/api/sensor-data" -Method Post -ContentType "application/json" -Body '{"lane1":45.5,"lane2":120.3,"lane3":80.7,"lane4":200.0}'
+Invoke-RestMethod -Uri "http://localhost:5000/api/sensor-data" -Method Post -ContentType "application/json" -Body '{"lane1":45.5,"lane2":120.3,"lane3":80.7,"lane4":200.0,"temperature":23.5,"humidity":65.2,"pressure":1013.2}'
 ```
 
 **Get latest decision:**

@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node test-api.js:*)",
+      "Bash(copy:*)",
+      "Bash(powershell -Command \"Remove-Item ''C:\\Users\\AJ\\Documents\\Projects\\Smart-Roads\\ESP32\\src\\main2.cpp'' -ErrorAction SilentlyContinue; Remove-Item ''C:\\Users\\AJ\\Documents\\Projects\\Smart-Roads\\ESP32\\src\\main_backup.cpp'' -ErrorAction SilentlyContinue; Remove-Item ''C:\\Users\\AJ\\Documents\\Projects\\Smart-Roads\\ESP32\\src\\main_test_minimal.cpp'' -ErrorAction SilentlyContinue; Remove-Item ''C:\\Users\\AJ\\Documents\\Projects\\Smart-Roads\\ESP32\\src\\main_full.cpp'' -ErrorAction SilentlyContinue\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

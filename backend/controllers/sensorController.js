@@ -4,7 +4,7 @@ import { analyzeTrafficAndDecide } from './decisionController.js';
 // POST /api/sensor-data - Receive sensor data from Arduino
 export const saveSensorData = async (req, res) => {
   try {
-    const { lane1, lane2, lane3, lane4 } = req.body;
+    const { lane1, lane2, lane3, lane4, temperature, humidity, pressure } = req.body;
     const timestamp = Date.now();
 
     // Prepare data object
@@ -16,6 +16,11 @@ export const saveSensorData = async (req, res) => {
       timestamp,
       createdAt: new Date().toISOString()
     };
+
+    // Add environmental data if provided (BME280 sensor)
+    if (temperature !== undefined) sensorData.temperature = temperature;
+    if (humidity !== undefined) sensorData.humidity = humidity;
+    if (pressure !== undefined) sensorData.pressure = pressure;
 
     // Save to Firebase Realtime Database
     await db.ref('sensor_data').push(sensorData);
@@ -38,7 +43,12 @@ export const saveSensorData = async (req, res) => {
       success: true,
       message: 'Sensor data saved and decision generated',
       data: sensorData,
-      decision: decision // Return decision immediately
+      decision: decision, // Return decision immediately
+      environmental: {
+        temperature: temperature,
+        humidity: humidity,
+        pressure: pressure
+      }
     });
 
   } catch (error) {

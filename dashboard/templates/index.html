@@ -1,23 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart AI Traffic Light Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; }
-        .lane-card { transition: all 0.3s; border-left: 5px solid #ccc; }
-        .lane-active { border-left-color: #28a745; background-color: #e8f5e9; }
-        .traffic-light { width: 60px; height: 160px; background: #333; border-radius: 10px; padding: 10px; margin: 0 auto; display: flex; flex-direction: column; justify-content: space-between; align-items: center; }
-        .light { width: 40px; height: 40px; border-radius: 50%; opacity: 0.3; transition: opacity 0.3s; }
-        .red { background-color: #ff4444; }
-        .yellow { background-color: #ffbb33; }
-        .green { background-color: #00C851; }
-        .light.active { opacity: 1; box-shadow: 0 0 15px currentColor; }
-        .metric-value { font-size: 2rem; font-weight: bold; }
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .lane-card {
+            transition: all 0.3s;
+            border-left: 5px solid #ccc;
+        }
+
+        .lane-active {
+            border-left-color: #28a745;
+            background-color: #e8f5e9;
+        }
+
+        .traffic-light {
+            width: 60px;
+            height: 160px;
+            background: #333;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .light {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            opacity: 0.3;
+            transition: opacity 0.3s;
+        }
+
+        .red {
+            background-color: #ff4444;
+        }
+
+        .yellow {
+            background-color: #ffbb33;
+        }
+
+        .green {
+            background-color: #00C851;
+        }
+
+        .light.active {
+            opacity: 1;
+            box-shadow: 0 0 15px currentColor;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
     </style>
 </head>
+
 <body>
     <div class="container py-5">
         <header class="mb-5 text-center">
@@ -27,7 +75,7 @@
         </header>
 
         <!-- Main Decision Display -->
-        <div class="row mb-5 justify-content-center">
+        <div class="row mb-4 justify-content-center">
             <div class="col-md-8">
                 <div class="card shadow-sm border-primary">
                     <div class="card-body text-center">
@@ -40,10 +88,44 @@
             </div>
         </div>
 
+        <!-- Environmental Sensors Display (BME280) -->
+        <div class="row mb-5 justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm border-info">
+                    <div class="card-body">
+                        <h5 class="card-title text-center mb-4">Environmental Conditions</h5>
+                        <div class="row text-center g-3">
+                            <div class="col-md-4">
+                                <div class="p-3 bg-light rounded">
+                                    <div class="fs-5 text-muted">Temperature</div>
+                                    <div class="display-6 fw-bold text-danger" id="temp-display">--</div>
+                                    <small class="text-muted">°C</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 bg-light rounded">
+                                    <div class="fs-5 text-muted">Humidity</div>
+                                    <div class="display-6 fw-bold text-primary" id="humidity-display">--</div>
+                                    <small class="text-muted">%</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 bg-light rounded">
+                                    <div class="fs-5 text-muted">Pressure</div>
+                                    <div class="display-6 fw-bold text-success" id="pressure-display">--</div>
+                                    <small class="text-muted">hPa</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Lanes Grid -->
-        <div class="row g-4">
+        <div class="row g-4 justify-content-center">
             <!-- Lane 1 -->
-            <div class="col-md-3">
+            <div class="col-md-6 col-lg-4">
                 <div class="card lane-card h-100" id="card-lane1">
                     <div class="card-body text-center">
                         <h5>Lane 1</h5>
@@ -59,7 +141,7 @@
             </div>
 
             <!-- Lane 2 -->
-            <div class="col-md-3">
+            <div class="col-md-6 col-lg-4">
                 <div class="card lane-card h-100" id="card-lane2">
                     <div class="card-body text-center">
                         <h5>Lane 2</h5>
@@ -74,9 +156,9 @@
                 </div>
             </div>
 
-            <!-- Lane 3 -->
-            <div class="col-md-3">
-                <div class="card lane-card h-100" id="card-lane3">
+            <!-- Lane 3 - HIDDEN -->
+            <div class="col-md-3 d-none" id="card-lane3">
+                <div class="card lane-card h-100">
                     <div class="card-body text-center">
                         <h5>Lane 3</h5>
                         <div class="traffic-light mb-3">
@@ -90,9 +172,9 @@
                 </div>
             </div>
 
-            <!-- Lane 4 -->
-            <div class="col-md-3">
-                <div class="card lane-card h-100" id="card-lane4">
+            <!-- Lane 4 - HIDDEN -->
+            <div class="col-md-3 d-none" id="card-lane4">
+                <div class="card lane-card h-100">
                     <div class="card-body text-center">
                         <h5>Lane 4</h5>
                         <div class="traffic-light mb-3">
@@ -122,10 +204,30 @@
                     document.getElementById('last-updated').textContent = 'Last Updated: ' + data.timestamp;
 
                     // Update Sensor Values
-                    document.getElementById('dist-lane1').textContent = sensor.lane1 || '--';
-                    document.getElementById('dist-lane2').textContent = sensor.lane2 || '--';
-                    document.getElementById('dist-lane3').textContent = sensor.lane3 || '--';
-                    document.getElementById('dist-lane4').textContent = sensor.lane4 || '--';
+                    // Update Sensor Values
+                    const updateLaneDisplay = (elementId, value) => {
+                        const el = document.getElementById(elementId);
+                        if (value === 999 || value === undefined || value === null) {
+                            el.textContent = 'Clear';
+                            el.classList.add('text-success'); // Make "Clear" green
+                        } else {
+                            el.textContent = value;
+                            el.classList.remove('text-success');
+                        }
+                    };
+
+                    updateLaneDisplay('dist-lane1', sensor.lane1);
+                    updateLaneDisplay('dist-lane2', sensor.lane2);
+                    updateLaneDisplay('dist-lane3', sensor.lane3);
+                    updateLaneDisplay('dist-lane4', sensor.lane4);
+
+                    // Update Environmental Data (BME280)
+                    document.getElementById('temp-display').textContent =
+                        sensor.temperature !== undefined ? sensor.temperature.toFixed(1) : '--';
+                    document.getElementById('humidity-display').textContent =
+                        sensor.humidity !== undefined ? sensor.humidity.toFixed(1) : '--';
+                    document.getElementById('pressure-display').textContent =
+                        sensor.pressure !== undefined ? sensor.pressure.toFixed(1) : '--';
 
                     // Update Decision Info
                     const activeLane = decision.activeLane || 'None';
@@ -133,10 +235,10 @@
                     document.getElementById('duration-display').textContent = decision.duration || '--';
                     document.getElementById('reason-display').textContent = decision.reason || 'Waiting for new decision...';
 
-                    // Update Visuals (Lights & Cards)
-                    ['lane1', 'lane2', 'lane3', 'lane4'].forEach(lane => {
+                    // Update Visuals (Lights & Cards) - ONLY LANES 1 & 2
+                    ['lane1', 'lane2'].forEach(lane => {
                         const isGreen = (lane === activeLane);
-                        
+
                         // Card Styling
                         const card = document.getElementById(`card-${lane}`);
                         if (isGreen) {
@@ -149,7 +251,7 @@
                         const prefix = lane.replace('lane', 'l'); // l1, l2...
                         const redLight = document.getElementById(`${prefix}-red`);
                         const greenLight = document.getElementById(`${prefix}-green`);
-                        
+
                         // Simple logic: Active lane is Green, others Red
                         // (Yellow logic would require more complex state tracking on frontend or backend)
                         if (isGreen) {
@@ -169,4 +271,5 @@
         updateDashboard(); // Initial call
     </script>
 </body>
+
 </html>
