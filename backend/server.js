@@ -17,8 +17,8 @@ app.use(express.json());
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+  res.json({
+    status: 'OK',
     message: 'Smart Roads Backend is running',
     timestamp: new Date().toISOString()
   });
@@ -47,9 +47,12 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
+// Listen on all network interfaces (0.0.0.0) to accept connections from ESP32
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📍 Health check: http://localhost:${PORT}/health`);
-  console.log(`📊 Sensor data API: http://localhost:${PORT}/api/sensor-data`);
-  console.log(`🧠 Decision API: http://localhost:${PORT}/api/decision`);
+  console.log(`📍 Local: http://localhost:${PORT}/health`);
+  console.log(`🌐 Network: http://145.93.85.43:${PORT}/health`);
+  console.log(`📊 Sensor data API: http://145.93.85.43:${PORT}/api/sensor-data`);
+  console.log(`🧠 Decision API: http://145.93.85.43:${PORT}/api/decision`);
+  console.log(`\n⚠️  Make sure Windows Firewall allows Node.js on port ${PORT}`);
 });

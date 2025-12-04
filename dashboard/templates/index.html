@@ -4,271 +4,368 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart AI Traffic Light Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Smart Roads - Command Center</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #0a0a12;
+            color: #fff;
+            height: 100vh;
+            overflow: hidden;
+            padding: 15px;
         }
 
-        .lane-card {
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr 1fr;
+            grid-template-rows: auto 1fr auto;
+            gap: 15px;
+            height: 100%;
+        }
+
+        /* Header */
+        header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: 1.3rem;
+            color: #00f3ff;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #00ff9d;
+            box-shadow: 0 0 10px #00ff9d;
+        }
+
+        .dot.offline {
+            background: #ff2a6d;
+            box-shadow: 0 0 10px #ff2a6d;
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 15px;
+        }
+
+        /* Lane Cards */
+        .lanes-left,
+        .lanes-right {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .lane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: rgba(0, 243, 255, 0.03);
+            border: 1px solid rgba(0, 243, 255, 0.15);
+            border-radius: 12px;
             transition: all 0.3s;
-            border-left: 5px solid #ccc;
         }
 
-        .lane-active {
-            border-left-color: #28a745;
-            background-color: #e8f5e9;
+        .lane.active {
+            border-color: #00ff9d;
+            background: rgba(0, 255, 157, 0.08);
+        }
+
+        .lane-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            opacity: 0.7;
+        }
+
+        .lane-val {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00ff9d;
+        }
+
+        .lane-status {
+            font-size: 0.75rem;
+            margin-top: 8px;
+            padding: 4px 12px;
+            background: rgba(0, 255, 157, 0.2);
+            border-radius: 10px;
+            color: #00ff9d;
+        }
+
+        /* Center Traffic Light */
+        .control {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
         }
 
         .traffic-light {
-            width: 60px;
-            height: 160px;
-            background: #333;
-            border-radius: 10px;
-            padding: 10px;
-            margin: 0 auto;
+            background: #1a1a24;
+            padding: 20px;
+            border-radius: 30px;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
+            gap: 15px;
+            border: 2px solid #333;
         }
 
         .light {
-            width: 40px;
-            height: 40px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            opacity: 0.3;
-            transition: opacity 0.3s;
+            background: #222;
         }
 
-        .red {
-            background-color: #ff4444;
+        .light.red.on {
+            background: #ff2a6d;
+            box-shadow: 0 0 30px #ff2a6d;
         }
 
-        .yellow {
-            background-color: #ffbb33;
+        .light.yellow.on {
+            background: #ffc107;
+            box-shadow: 0 0 30px #ffc107;
         }
 
-        .green {
-            background-color: #00C851;
+        .light.green.on {
+            background: #00ff9d;
+            box-shadow: 0 0 30px #00ff9d;
         }
 
-        .light.active {
-            opacity: 1;
-            box-shadow: 0 0 15px currentColor;
+        .decision {
+            text-align: center;
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
         }
 
-        .metric-value {
-            font-size: 2rem;
-            font-weight: bold;
+        .decision-lane {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #00f3ff;
+        }
+
+        .decision-time {
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+
+        /* Environment Bar */
+        .env-bar {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 50px;
+            padding: 15px;
+        }
+
+        .env-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .env-icon {
+            font-size: 1.5rem;
+        }
+
+        .env-data {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .env-val {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .env-lbl {
+            font-size: 0.7rem;
+            opacity: 0.5;
+            text-transform: uppercase;
         }
     </style>
 </head>
 
 <body>
-    <div class="container py-5">
-        <header class="mb-5 text-center">
-            <h1 class="display-4 fw-bold text-primary">🚦 Smart AI Traffic Dashboard</h1>
-            <p class="lead text-muted">Real-time Traffic Monitoring & Control System</p>
-            <div class="badge bg-secondary" id="last-updated">Waiting for data...</div>
+    <div class="dashboard">
+        <header>
+            <h1>🚦 SMART ROADS</h1>
+            <div class="status">
+                <div class="dot" id="dot"></div>
+                <span id="status-text">ONLINE</span>
+            </div>
         </header>
 
-        <!-- Main Decision Display -->
-        <div class="row mb-4 justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow-sm border-primary">
-                    <div class="card-body text-center">
-                        <h3 class="card-title">Current AI Decision</h3>
-                        <div class="display-1 fw-bold text-success my-3" id="active-lane-display">--</div>
-                        <p class="lead">Duration: <span id="duration-display" class="fw-bold">--</span> seconds</p>
-                        <p class="text-muted" id="reason-display">Analyzing traffic...</p>
-                    </div>
-                </div>
+        <div class="lanes-left">
+            <div class="lane" id="card-lane1">
+                <div class="lane-name">LANE 1</div>
+                <div class="lane-val" id="lane1">--</div>
+                <div class="lane-status" id="s1">--</div>
+            </div>
+            <div class="lane" id="card-lane3">
+                <div class="lane-name">LANE 3</div>
+                <div class="lane-val" id="lane3">--</div>
+                <div class="lane-status" id="s3">--</div>
             </div>
         </div>
 
-        <!-- Environmental Sensors Display (BME280) -->
-        <div class="row mb-5 justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow-sm border-info">
-                    <div class="card-body">
-                        <h5 class="card-title text-center mb-4">Environmental Conditions</h5>
-                        <div class="row text-center g-3">
-                            <div class="col-md-4">
-                                <div class="p-3 bg-light rounded">
-                                    <div class="fs-5 text-muted">Temperature</div>
-                                    <div class="display-6 fw-bold text-danger" id="temp-display">--</div>
-                                    <small class="text-muted">°C</small>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="p-3 bg-light rounded">
-                                    <div class="fs-5 text-muted">Humidity</div>
-                                    <div class="display-6 fw-bold text-primary" id="humidity-display">--</div>
-                                    <small class="text-muted">%</small>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="p-3 bg-light rounded">
-                                    <div class="fs-5 text-muted">Pressure</div>
-                                    <div class="display-6 fw-bold text-success" id="pressure-display">--</div>
-                                    <small class="text-muted">hPa</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="card control">
+            <div class="traffic-light">
+                <div class="light red" id="red"></div>
+                <div class="light yellow" id="yellow"></div>
+                <div class="light green" id="green"></div>
+            </div>
+            <div class="decision">
+                <div class="decision-lane" id="active">--</div>
+                <div class="decision-time" id="timer">Waiting...</div>
             </div>
         </div>
 
-        <!-- Lanes Grid -->
-        <div class="row g-4 justify-content-center">
-            <!-- Lane 1 -->
-            <div class="col-md-6 col-lg-4">
-                <div class="card lane-card h-100" id="card-lane1">
-                    <div class="card-body text-center">
-                        <h5>Lane 1</h5>
-                        <div class="traffic-light mb-3">
-                            <div class="light red" id="l1-red"></div>
-                            <div class="light yellow" id="l1-yellow"></div>
-                            <div class="light green" id="l1-green"></div>
-                        </div>
-                        <div class="metric-value" id="dist-lane1">--</div>
-                        <small class="text-muted">Distance (cm)</small>
-                    </div>
+        <div class="lanes-right">
+            <div class="lane" id="card-lane2">
+                <div class="lane-name">LANE 2</div>
+                <div class="lane-val" id="lane2">--</div>
+                <div class="lane-status" id="s2">--</div>
+            </div>
+            <div class="lane" id="card-lane4">
+                <div class="lane-name">LANE 4</div>
+                <div class="lane-val" id="lane4">--</div>
+                <div class="lane-status" id="s4">--</div>
+            </div>
+        </div>
+
+        <div class="card env-bar">
+            <div class="env-item">
+                <div class="env-icon">🌡️</div>
+                <div class="env-data">
+                    <div class="env-val" id="temp">--°C</div>
+                    <div class="env-lbl">Temperature</div>
                 </div>
             </div>
-
-            <!-- Lane 2 -->
-            <div class="col-md-6 col-lg-4">
-                <div class="card lane-card h-100" id="card-lane2">
-                    <div class="card-body text-center">
-                        <h5>Lane 2</h5>
-                        <div class="traffic-light mb-3">
-                            <div class="light red" id="l2-red"></div>
-                            <div class="light yellow" id="l2-yellow"></div>
-                            <div class="light green" id="l2-green"></div>
-                        </div>
-                        <div class="metric-value" id="dist-lane2">--</div>
-                        <small class="text-muted">Distance (cm)</small>
-                    </div>
+            <div class="env-item">
+                <div class="env-icon">💧</div>
+                <div class="env-data">
+                    <div class="env-val" id="humid">--%</div>
+                    <div class="env-lbl">Humidity</div>
                 </div>
             </div>
-
-            <!-- Lane 3 - HIDDEN -->
-            <div class="col-md-3 d-none" id="card-lane3">
-                <div class="card lane-card h-100">
-                    <div class="card-body text-center">
-                        <h5>Lane 3</h5>
-                        <div class="traffic-light mb-3">
-                            <div class="light red" id="l3-red"></div>
-                            <div class="light yellow" id="l3-yellow"></div>
-                            <div class="light green" id="l3-green"></div>
-                        </div>
-                        <div class="metric-value" id="dist-lane3">--</div>
-                        <small class="text-muted">Distance (cm)</small>
-                    </div>
+            <div class="env-item">
+                <div class="env-icon">📊</div>
+                <div class="env-data">
+                    <div class="env-val" id="press">-- hPa</div>
+                    <div class="env-lbl">Pressure</div>
                 </div>
             </div>
-
-            <!-- Lane 4 - HIDDEN -->
-            <div class="col-md-3 d-none" id="card-lane4">
-                <div class="card lane-card h-100">
-                    <div class="card-body text-center">
-                        <h5>Lane 4</h5>
-                        <div class="traffic-light mb-3">
-                            <div class="light red" id="l4-red"></div>
-                            <div class="light yellow" id="l4-yellow"></div>
-                            <div class="light green" id="l4-green"></div>
-                        </div>
-                        <div class="metric-value" id="dist-lane4">--</div>
-                        <small class="text-muted">Distance (cm)</small>
-                    </div>
+            <div class="env-item">
+                <div class="env-icon">⏰</div>
+                <div class="env-data">
+                    <div class="env-val" id="clock">--:--</div>
+                    <div class="env-lbl">Time</div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        function updateDashboard() {
-            fetch('/api/dashboard-data')
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.success) return;
+        setInterval(() => {
+            document.getElementById('clock').textContent = new Date().toLocaleTimeString();
+        }, 1000);
 
-                    const sensor = data.sensor;
-                    const decision = data.decision;
+        async function update() {
+            try {
+                const r = await fetch('/api/dashboard-data');
+                const d = await r.json();
+                if (!d.success) return;
 
-                    // Update Timestamp
-                    document.getElementById('last-updated').textContent = 'Last Updated: ' + data.timestamp;
+                document.getElementById('dot').className = 'dot';
+                document.getElementById('status-text').textContent = 'ONLINE';
 
-                    // Update Sensor Values
-                    // Update Sensor Values
-                    const updateLaneDisplay = (elementId, value) => {
-                        const el = document.getElementById(elementId);
-                        if (value === 999 || value === undefined || value === null) {
-                            el.textContent = 'Clear';
-                            el.classList.add('text-success'); // Make "Clear" green
-                        } else {
-                            el.textContent = value;
-                            el.classList.remove('text-success');
-                        }
-                    };
+                // Lanes
+                setLane(1, d.sensor.lane1);
+                setLane(2, d.sensor.lane2);
+                setLane(3, d.sensor.lane3);
+                setLane(4, d.sensor.lane4);
 
-                    updateLaneDisplay('dist-lane1', sensor.lane1);
-                    updateLaneDisplay('dist-lane2', sensor.lane2);
-                    updateLaneDisplay('dist-lane3', sensor.lane3);
-                    updateLaneDisplay('dist-lane4', sensor.lane4);
+                // Env
+                document.getElementById('temp').textContent = (d.sensor.temperature || 0).toFixed(1) + '°C';
+                document.getElementById('humid').textContent = (d.sensor.humidity || 0).toFixed(0) + '%';
+                document.getElementById('press').textContent = (d.sensor.pressure || 0).toFixed(0) + ' hPa';
 
-                    // Update Environmental Data (BME280)
-                    document.getElementById('temp-display').textContent =
-                        sensor.temperature !== undefined ? sensor.temperature.toFixed(1) : '--';
-                    document.getElementById('humidity-display').textContent =
-                        sensor.humidity !== undefined ? sensor.humidity.toFixed(1) : '--';
-                    document.getElementById('pressure-display').textContent =
-                        sensor.pressure !== undefined ? sensor.pressure.toFixed(1) : '--';
+                // Decision
+                if (d.decision) {
+                    const n = d.decision.activeLane.replace('lane', '');
+                    document.getElementById('active').textContent = 'LANE ' + n + ' GO';
+                    document.getElementById('timer').textContent = d.decision.duration + 's remaining';
+                    document.getElementById('red').className = 'light red';
+                    document.getElementById('yellow').className = 'light yellow';
+                    document.getElementById('green').className = 'light green on';
 
-                    // Update Decision Info
-                    const activeLane = decision.activeLane || 'None';
-                    document.getElementById('active-lane-display').textContent = activeLane.toUpperCase();
-                    document.getElementById('duration-display').textContent = decision.duration || '--';
-                    document.getElementById('reason-display').textContent = decision.reason || 'Waiting for new decision...';
-
-                    // Update Visuals (Lights & Cards) - ONLY LANES 1 & 2
-                    ['lane1', 'lane2'].forEach(lane => {
-                        const isGreen = (lane === activeLane);
-
-                        // Card Styling
-                        const card = document.getElementById(`card-${lane}`);
-                        if (isGreen) {
-                            card.classList.add('lane-active');
-                        } else {
-                            card.classList.remove('lane-active');
-                        }
-
-                        // Lights
-                        const prefix = lane.replace('lane', 'l'); // l1, l2...
-                        const redLight = document.getElementById(`${prefix}-red`);
-                        const greenLight = document.getElementById(`${prefix}-green`);
-
-                        // Simple logic: Active lane is Green, others Red
-                        // (Yellow logic would require more complex state tracking on frontend or backend)
-                        if (isGreen) {
-                            redLight.classList.remove('active');
-                            greenLight.classList.add('active');
-                        } else {
-                            redLight.classList.add('active');
-                            greenLight.classList.remove('active');
-                        }
-                    });
-                })
-                .catch(err => console.error('Error fetching data:', err));
+                    document.querySelectorAll('.lane').forEach(l => l.classList.remove('active'));
+                    const card = document.getElementById('card-' + d.decision.activeLane);
+                    if (card) card.classList.add('active');
+                } else {
+                    document.getElementById('active').textContent = 'ALL STOP';
+                    document.getElementById('red').className = 'light red on';
+                    document.getElementById('green').className = 'light green';
+                }
+            } catch (e) {
+                document.getElementById('dot').className = 'dot offline';
+                document.getElementById('status-text').textContent = 'OFFLINE';
+            }
         }
 
-        // Refresh every 2 seconds
-        setInterval(updateDashboard, 2000);
-        updateDashboard(); // Initial call
+        function setLane(n, v) {
+            const el = document.getElementById('lane' + n);
+            const st = document.getElementById('s' + n);
+            if (v === 999 || v == null) {
+                el.textContent = '∞';
+                st.textContent = 'CLEAR';
+                st.style.background = 'rgba(0,255,157,0.2)';
+                st.style.color = '#00ff9d';
+            } else {
+                el.textContent = v;
+                el.style.color = v < 50 ? '#ff2a6d' : '#ffc107';
+                st.textContent = v < 50 ? 'HEAVY' : 'DETECTED';
+                st.style.background = v < 50 ? 'rgba(255,42,109,0.2)' : 'rgba(255,193,7,0.2)';
+                st.style.color = v < 50 ? '#ff2a6d' : '#ffc107';
+            }
+        }
+
+        update();
+        setInterval(update, 1000);
     </script>
 </body>
 

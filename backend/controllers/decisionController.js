@@ -17,13 +17,8 @@ export const analyzeTrafficAndDecide = (sensorData) => {
   const priorityLane = lanes[0].name;
 
   // Calculate duration based on traffic density
-  let duration = 30; // Default 30 seconds
-
-  if (lanes[0].distance < 50) {
-    duration = 45; // Heavy traffic: 45 seconds
-  } else if (lanes[0].distance < 100) {
-    duration = 35; // Moderate traffic: 35 seconds
-  }
+  // TEST MODE: 10 seconds for all conditions
+  let duration = 10;
 
   return {
     activeLane: priorityLane,
@@ -36,7 +31,6 @@ export const analyzeTrafficAndDecide = (sensorData) => {
 // POST /api/decision/generate - Generate new decision based on latest sensor data
 export const generateDecision = async (req, res) => {
   try {
-    // Get the latest sensor data
     const snapshot = await db.ref('sensor_data')
       .orderByChild('timestamp')
       .limitToLast(1)
@@ -54,15 +48,11 @@ export const generateDecision = async (req, res) => {
       latestSensorData = child.val();
     });
 
-    // Run AI analysis
     const decision = analyzeTrafficAndDecide(latestSensorData);
-
     decision.timestamp = Date.now();
     decision.createdAt = new Date().toISOString();
 
-    // Save decision to database
     await db.ref('decisions').push(decision);
-
     console.log('🧠 AI Decision made:', decision);
 
     res.status(201).json({

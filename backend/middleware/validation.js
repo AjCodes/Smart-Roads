@@ -22,11 +22,12 @@ export const validateSensorData = (req, res, next) => {
   }
 
   // Validate that all values are within acceptable range (0-400cm for ultrasonic sensors)
+  // We also allow 999 which is the code for "Out of Range / Clear"
   for (let i = 0; i < lanes.length; i++) {
-    if (lanes[i] < 0 || lanes[i] > 400) {
+    if ((lanes[i] < 0 || lanes[i] > 400) && lanes[i] !== 999) {
       return res.status(400).json({
         success: false,
-        error: `Invalid value for lane${i + 1}. Must be between 0 and 400cm.`
+        error: `Invalid value for lane${i + 1}. Must be between 0 and 400cm (or 999 for clear).`
       });
     }
   }
