@@ -1,33 +1,35 @@
-// Middleware to validate sensor data from Arduino
+// Middleware to validate sensor data from ESP32
+
 export const validateSensorData = (req, res, next) => {
   const { lane1, lane2, lane3, lane4, temperature, humidity, pressure } = req.body;
 
-  // Check if all required fields are present
-  if (lane1 === undefined || lane2 === undefined || lane3 === undefined || lane4 === undefined) {
-    return res.status(400).json({
-      success: false,
-      error: 'Missing required fields. Expected: lane1, lane2, lane3, lane4'
-    });
-  }
+  // Validate lane data structure (nested objects with carCount and firstTriggered)
+  const lanes = [
+    { data: lane1, name: 'lane1' },
+    { data: lane2, name: 'lane2' },
+    { data: lane3, name: 'lane3' },
+    { data: lane4, name: 'lane4' }
+  ];
 
-  // Validate that all values are numbers
-  const lanes = [lane1, lane2, lane3, lane4];
-  for (let i = 0; i < lanes.length; i++) {
-    if (typeof lanes[i] !== 'number' || isNaN(lanes[i])) {
+  for (const lane of lanes) {
+    if (!lane.data || typeof lane.data !== 'object') {
       return res.status(400).json({
         success: false,
-        error: `Invalid value for lane${i + 1}. Must be a number.`
+        error: `Missing or invalid ${lane.name}. Expected: { carCount: number, firstTriggered: number }`
       });
     }
-  }
 
-  // Validate that all values are within acceptable range (0-400cm for ultrasonic sensors)
-  // We also allow 999 which is the code for "Out of Range / Clear"
-  for (let i = 0; i < lanes.length; i++) {
-    if ((lanes[i] < 0 || lanes[i] > 400) && lanes[i] !== 999) {
+    if (typeof lane.data.carCount !== 'number' || lane.data.carCount < 0) {
       return res.status(400).json({
         success: false,
-        error: `Invalid value for lane${i + 1}. Must be between 0 and 400cm (or 999 for clear).`
+        error: `Invalid carCount for ${lane.name}. Must be a non-negative number.`
+      });
+    }
+
+    if (typeof lane.data.firstTriggered !== 'number') {
+      return res.status(400).json({
+        success: false,
+        error: `Invalid firstTriggered for ${lane.name}. Must be a number (timestamp).`
       });
     }
   }
@@ -40,12 +42,6 @@ export const validateSensorData = (req, res, next) => {
         error: 'Invalid temperature value. Must be a number.'
       });
     }
-    if (temperature < -40 || temperature > 85) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid temperature value. Must be between -40°C and 85°C.'
-      });
-    }
   }
 
   if (humidity !== undefined) {
@@ -55,12 +51,6 @@ export const validateSensorData = (req, res, next) => {
         error: 'Invalid humidity value. Must be a number.'
       });
     }
-    if (humidity < 0 || humidity > 100) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid humidity value. Must be between 0% and 100%.'
-      });
-    }
   }
 
   if (pressure !== undefined) {
@@ -68,12 +58,6 @@ export const validateSensorData = (req, res, next) => {
       return res.status(400).json({
         success: false,
         error: 'Invalid pressure value. Must be a number.'
-      });
-    }
-    if (pressure < 300 || pressure > 1100) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid pressure value. Must be between 300 and 1100 hPa.'
       });
     }
   }

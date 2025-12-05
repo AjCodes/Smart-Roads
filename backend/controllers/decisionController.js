@@ -1,30 +1,63 @@
 import { db } from '../config/firebase.js';
 
-// Simple AI Logic: Give green light to the lane with most traffic (shortest distance)
+// AI Logic: Give green light to the lane with most cars (count-based priority)
 export const analyzeTrafficAndDecide = (sensorData) => {
-  const { lane1, lane2, lane3, lane4 } = sensorData;
-
   const lanes = [
-    { name: 'lane1', distance: lane1 },
-    { name: 'lane2', distance: lane2 },
-    { name: 'lane3', distance: lane3 },
-    { name: 'lane4', distance: lane4 }
+    { name: 'lane1', count: sensorData.lane1?.carCount || 0, first: sensorData.lane1?.firstTriggered || 0 },
+    { name: 'lane2', count: sensorData.lane2?.carCount || 0, first: sensorData.lane2?.firstTriggered || 0 },
+    { name: 'lane3', count: sensorData.lane3?.carCount || 0, first: sensorData.lane3?.firstTriggered || 0 },
+    { name: 'lane4', count: sensorData.lane4?.carCount || 0, first: sensorData.lane4?.firstTriggered || 0 }
   ];
 
-  // Sort by distance (ascending) - shortest distance = most traffic
-  lanes.sort((a, b) => a.distance - b.distance);
+  // Filter lanes with at least 1 car waiting
+  const activeLanes = lanes.filter(l => l.count > 0);
 
-  const priorityLane = lanes[0].name;
+  if (activeLanes.length === 0) {
+    return {
+      activeLane: 'none',
+      resetLane: 0,
+      duration: 0,
+      reason: 'No cars detected on any lane',
+      trafficDensity: 'none'
+    };
+  }
 
-  // Calculate duration based on traffic density
-  // TEST MODE: 10 seconds for all conditions
-  let duration = 10;
+  // Sort by:
+  // 1. Car count (descending) - more cars = higher priority
+  // 2. First triggered time (ascending) - earlier = wins tie
+  activeLanes.sort((a, b) => {
+    if (b.count !== a.count) return b.count - a.count;
+    return a.first - b.first;  // Earlier timestamp wins
+  });
+
+  const winner = activeLanes[0];
+  const resetLane = parseInt(winner.name.replace('lane', '')); // "lane1" -> 1
+
+  // Calculate traffic density
+  let trafficDensity;
+  if (winner.count >= 5) {
+    trafficDensity = 'heavy';
+  } else if (winner.count >= 3) {
+    trafficDensity = 'moderate';
+  } else {
+    trafficDensity = 'light';
+  }
+
+  // Dynamic duration based on car count
+  let duration = 15; // Fixed 15 seconds for testing
 
   return {
-    activeLane: priorityLane,
+    activeLane: winner.name,
+    resetLane: resetLane,
     duration: duration,
-    reason: `Lane with shortest distance (${lanes[0].distance}cm) indicating most traffic`,
-    trafficDensity: lanes[0].distance < 50 ? 'heavy' : lanes[0].distance < 100 ? 'moderate' : 'light'
+    reason: `${winner.name} has ${winner.count} car(s) waiting`,
+    trafficDensity: trafficDensity,
+    allLaneCounts: {
+      lane1: lanes[0].count,
+      lane2: lanes[1].count,
+      lane3: lanes[2].count,
+      lane4: lanes[3].count
+    }
   };
 };
 

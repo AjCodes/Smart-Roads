@@ -1,18 +1,30 @@
 import { db } from '../config/firebase.js';
 import { analyzeTrafficAndDecide } from './decisionController.js';
 
-// POST /api/sensor-data - Receive sensor data from Arduino
+// POST /api/sensor-data - Receive sensor data from ESP32
 export const saveSensorData = async (req, res) => {
   try {
     const { lane1, lane2, lane3, lane4, temperature, humidity, pressure } = req.body;
     const timestamp = Date.now();
 
-    // Prepare data object
+    // Prepare data object with nested lane structure
     const sensorData = {
-      lane1,
-      lane2,
-      lane3,
-      lane4,
+      lane1: {
+        carCount: lane1.carCount,
+        firstTriggered: lane1.firstTriggered
+      },
+      lane2: {
+        carCount: lane2.carCount,
+        firstTriggered: lane2.firstTriggered
+      },
+      lane3: {
+        carCount: lane3.carCount,
+        firstTriggered: lane3.firstTriggered
+      },
+      lane4: {
+        carCount: lane4.carCount,
+        firstTriggered: lane4.firstTriggered
+      },
       timestamp,
       createdAt: new Date().toISOString()
     };
@@ -25,7 +37,7 @@ export const saveSensorData = async (req, res) => {
     // Save to Firebase Realtime Database
     await db.ref('sensor_data').push(sensorData);
 
-    console.log('📊 Sensor data saved:', sensorData);
+    console.log('📊 Sensor data saved:', JSON.stringify(sensorData));
 
     // --- AI DECISION LOGIC ---
     // Run AI analysis immediately
@@ -37,13 +49,13 @@ export const saveSensorData = async (req, res) => {
     // Save decision to Firebase
     await db.ref('decisions').push(decision);
 
-    console.log('🧠 AI Decision made immediately:', decision);
+    console.log('🧠 AI Decision:', decision.activeLane, '- Reason:', decision.reason);
 
     res.status(201).json({
       success: true,
       message: 'Sensor data saved and decision generated',
       data: sensorData,
-      decision: decision, // Return decision immediately
+      decision: decision,
       environmental: {
         temperature: temperature,
         humidity: humidity,
