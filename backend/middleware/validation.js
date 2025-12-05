@@ -34,7 +34,7 @@ export const validateSensorData = (req, res, next) => {
     }
   }
 
-  // Validate optional BME280 environmental sensor data
+  // Validate BME280 environmental sensor data
   if (temperature !== undefined) {
     if (typeof temperature !== 'number' || isNaN(temperature)) {
       return res.status(400).json({
@@ -62,6 +62,5 @@ export const validateSensorData = (req, res, next) => {
     }
   }
 
-  // Data is valid, proceed to next middleware
   next();
 };

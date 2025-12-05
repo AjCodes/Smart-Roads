@@ -40,6 +40,7 @@ cd backend
 npm install
 npm run dev
 ```
+📖 [Backend README](backend/README.md) - Detailed setup and API documentation
 
 ### Dashboard
 ```bash
@@ -47,10 +48,13 @@ cd dashboard
 pip install -r requirements.txt
 python app.py
 ```
+📖 [Dashboard README](dashboard/README.md) - Dashboard configuration and usage
 
 ### ESP32
 Upload `ESP32/src/main.cpp` using PlatformIO or Arduino IDE.
 Configure WiFi credentials and backend URL in the code.
+
+📖 [ESP32 README](ESP32/README.md) - Hardware setup and firmware guide
 
 ---
 
