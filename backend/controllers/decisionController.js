@@ -35,16 +35,16 @@ export const analyzeTrafficAndDecide = (sensorData) => {
 
   // Calculate traffic density
   let trafficDensity;
-  if (winner.count >= 5) {
+  if (winner.count >= 9) {
     trafficDensity = 'heavy';
-  } else if (winner.count >= 3) {
+  } else if (winner.count >= 5) {
     trafficDensity = 'moderate';
   } else {
     trafficDensity = 'light';
   }
 
   // Dynamic duration based on car count
-  let duration = 15; // Fixed 15 seconds for testing
+  let duration = 10; // Fixed 10 seconds
 
   return {
     activeLane: winner.name,

@@ -22,8 +22,8 @@ def get_dashboard_data():
         decision_response = requests.get(f"{BACKEND_URL}/decision/latest")
         decision_data = decision_response.json().get('decision', {})
 
-        # Fetch history (optional, for charts if added later)
-        # history_response = requests.get(f"{BACKEND_URL}/decisions?limit=10")
+        # Fetch history (optional, for charts if added later):
+        #history_response = requests.get(f"{http://localhost:5000/api}/decisions?limit=10")
         
         return jsonify({
             'success': True,
