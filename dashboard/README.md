@@ -1,35 +1,41 @@
-# 📊 Smart Roads Dashboard
+# Dashboard
 
-A Python-based dashboard to visualize real-time traffic data and AI decisions.
+Python Flask dashboard for Smart Roads traffic visualization.
 
----
+## Setup
 
-## ⚙️ Setup
-
-**1. Install Dependencies**
+**Install dependencies:**
 ```bash
 pip install -r requirements.txt
 ```
-*Dependencies: `flask`, `requests`*
 
-**2. Run Dashboard**
+**Run dashboard:**
 ```bash
 python app.py
 ```
 
-✅ Dashboard starts at `http://localhost:5001`
+Dashboard starts at `http://localhost:5001`
 
----
+## Features
 
-## 🖥️ Features
+- Real-time car count visualization for all 4 lanes
+- Live traffic light status display
+- Environmental data (temperature, humidity, pressure)
+- Auto-refresh every second
+- Color-coded traffic density indicators
 
-- **Real-time Monitoring**: Fetches latest sensor readings from the backend.
-- **AI Decisions**: Displays the current traffic light status decided by the AI.
-- **Auto-Refresh**: Polls the backend every few seconds for updates.
+## Configuration
 
----
+To change backend URL, edit `BACKEND_URL` in `app.py`:
+```python
+BACKEND_URL = "http://localhost:5000/api"
+```
 
-## 🔧 Configuration
+## Display
 
-The dashboard connects to the backend at `http://localhost:5000`.
-To change this, edit `BACKEND_URL` in `app.py`.
+The dashboard shows:
+- Car counts per lane
+- Active lane with green light
+- Traffic density status (clear/light/moderate/heavy)
+- Current environmental conditions
+- Real-time clock

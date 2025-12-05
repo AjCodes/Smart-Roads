@@ -7,7 +7,7 @@ import {
 
 const router = express.Router();
 
-// POST /api/decision/generate - Trigger AI to make a decision
+// POST /api/decision/generate - Trigger system to make a decision
 router.post('/generate', generateDecision);
 
 // GET /api/decision/latest - Arduino fetches the latest decision

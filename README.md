@@ -1,124 +1,83 @@
-# 🚦 Smart Roads - AI Traffic Management System
+# Smart Roads - Traffic Management System
 
-[![Latest Release](https://img.shields.io/github/v/release/AjCodes/Smart-Roads?cache=none)](https://github.com/AjCodes/Smart-Roads/releases)
-[![Backend](https://img.shields.io/badge/Backend-Complete-success)](https://github.com/AjCodes/Smart-Roads/tree/main/backend)
-[![Demo Date](https://img.shields.io/badge/Demo-Dec%207%2C%202025-blue)](https://github.com/AjCodes/Smart-Roads)
+An intelligent traffic light system using ESP32 and ultrasonic sensors to optimize traffic flow.
 
-An intelligent traffic light system using ESP32 microcontroller, AI decision-making, and real-time data to optimize traffic flow.
+## Overview
 
----
-
-## 📋 Overview
-
-Smart Roads uses **ultrasonic sensors** to detect traffic density, analyzes the data with **AI algorithms**, and automatically adjusts traffic light timing to reduce congestion.
+Smart Roads detects cars using ultrasonic sensors, analyzes traffic patterns, and automatically adjusts traffic light timing to reduce congestion.
 
 **How it works:**
-1. Sensors detect cars in each lane
+1. Ultrasonic sensors count cars in each lane
 2. ESP32 sends data to backend API
-3. AI analyzes and decides which lane gets green light
-4. ESP32 controls the traffic lights
-5. Python dashboard visualizes real-time data
+3. Backend algorithm decides which lane gets green light
+4. ESP32 controls traffic lights based on decision
+5. Dashboard displays real-time data
+
+## Tech Stack
+
+- **Hardware:** ESP32, HC-SR04 Ultrasonic Sensors, LEDs, BME280 (optional)
+- **Backend:** Node.js, Express, Firebase Realtime Database
+- **Dashboard:** Python (Flask)
+- **Languages:** C++ (Arduino), JavaScript, Python
 
 ---
 
-## 🛠️ Tech Stack
-
-- **Hardware:** ESP32 + Ultrasonic Sensors + LEDs
-- **Backend:** Node.js + Express + Firebase
-- **Database:** Firebase Realtime Database
-- **Dashboard:** Python (Flask/Streamlit)
-- **Deployment:** Railway / Render
-
----
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 Smart-Roads/
-│
-├── ESP32/          # ESP32 firmware (see ESP32/README.md)
-├── backend/        # Node.js API (see backend/README.md)
-├── dashboard/      # Python dashboard (see dashboard/README.md)
-└── README.md       # This file
+├── ESP32/          # ESP32 firmware
+├── backend/        # Node.js API server
+├── dashboard/      # Python Flask dashboard
+└── README.md
 ```
 
----
+## Quick Start
 
-## 🚀 Quick Start
- 
- ### Backend
- ```bash
- cd backend
- npm install
- npm run dev
- ```
- See [backend/README.md](backend/README.md) for details.
- 
- ### Dashboard
- ```bash
- cd dashboard
- pip install -r requirements.txt
- python app.py
- ```
- See [dashboard/README.md](dashboard/README.md) for details.
- 
- ### ESP32
- **Note:** The current `simulate_esp32.py` is a **testing tool** only. Real hardware implementation will begin on Monday (Dec 1st).
- 
- **Simulation:**
- ```bash
- python simulate_esp32.py
- ```
- 
- **Hardware:**
- Upload `ESP32/src/main.cpp` using PlatformIO or Arduino IDE.
- See [ESP32/README.md](ESP32/README.md) for details.
+### Backend
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+### Dashboard
+```bash
+cd dashboard
+pip install -r requirements.txt
+python app.py
+```
+
+### ESP32
+Upload `ESP32/src/main.cpp` using PlatformIO or Arduino IDE.
+Configure WiFi credentials and backend URL in the code.
 
 ---
 
-## 👥 Team
+## Features
 
-| Name | Role |
-|------|------|
-| AJ | Backend & Database |
-| Junior | AI/ML Engineer |
-| Ethan | Hardware (ESP32) |
-| Julia | Project Management & Dashboard |
-| Elias | Dashboard (Python) |
+- **Car Counting:** Ultrasonic sensors detect and count cars per lane
+- **Priority Algorithm:** Prioritizes lanes with most traffic
+- **Traffic Light Control:** Automated red/yellow/green light sequences
+- **Real-time Dashboard:** Live visualization of traffic and decisions
+- **Environmental Monitoring:** Optional BME280 sensor for temp/humidity/pressure
+- **Firebase Integration:** Cloud storage for sensor data and decisions
 
----
+## Team
 
-## 📊 Current Status
+- **AJ** - Backend & Database
+- **Junior** - Hardware & ESP32
+- **Ethan** - Hardware & ESP32
+- **Julia** - Project Management
+- **Elias** - Dashboard Development
 
-- ✅ Backend API (100%)
-- ✅ AI Decision Engine (100%)
-- ✅ Firebase Database (100%)
-- 🚧 ESP32 Integration (In Progress)
-- 🚧 Python Dashboard (In Progress)
+## API Endpoints
 
-**Demo Date:** December 7, 2025
+- `POST /api/sensor-data` - ESP32 sends sensor readings
+- `GET /api/sensor-data/latest` - Get latest sensor data
+- `GET /api/decision/latest` - Get latest traffic decision
+- `GET /health` - Health check
 
----
+## License
 
-## 🔗 Live Demo
-
-- **Backend API:** https://smart-roads-backend.railway.app (Coming soon)
-- **Dashboard:** TBA
-
----
-
-## 📚 Documentation
-
-- **Backend:** [backend/README.md](backend/README.md)
-- **Dashboard:** [dashboard/README.md](dashboard/README.md)
-- **ESP32:** [ESP32/README.md](ESP32/README.md)
-
----
-
-## 📄 License
-
-MIT License - See [LICENSE](LICENSE) for details.
-
----
-
-**Built by the Smart Roads Team** 🚦
+MIT License

@@ -38,7 +38,7 @@ export const saveSensorData = async (req, res) => {
       currentCycleLane = null;
     }
 
-    // --- AI DECISION LOGIC ---
+    // --- DECISION LOGIC ---
     let decision;
 
     if (currentCycleActive) {
@@ -71,7 +71,7 @@ export const saveSensorData = async (req, res) => {
     // Save decision to Firebase
     await db.ref('decisions').push(decision);
 
-    console.log('🧠 AI Decision:', decision.activeLane, '- Reason:', decision.reason);
+    console.log('🧠 Decision:', decision.activeLane, '- Reason:', decision.reason);
 
     res.status(201).json({
       success: true,

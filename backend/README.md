@@ -1,136 +1,92 @@
-# 🚀 Backend API
+# Backend API
 
 Node.js backend for Smart Roads traffic system.
 
----
+## Setup
 
-## ⚙️ Setup
-
-**1. Install dependencies**
+**Install dependencies:**
 ```bash
 npm install
 ```
 
-**2. Create `.env` file**
+**Create `.env` file:**
 ```env
 PORT=5000
 FIREBASE_DATABASE_URL=https://your-project.firebaseio.com
 ```
 
-**3. Add Firebase key**
+**Add Firebase credentials:**
 - Download `serviceAccountKey.json` from Firebase Console
-- Place it in this folder
+- Place it in the backend folder
 
-**4. Run server**
- ```bash
- npm run dev
- ```
- *Runs with nodemon for auto-restart on changes.*
+**Run server:**
+```bash
+npm run dev
+```
 
-✅ Server starts at `http://localhost:5000`
+Server runs at `http://localhost:5000`
 
 ---
 
-## 📡 API Endpoints
+## API Endpoints
 
-### 🤖 ESP32
-```
-POST /api/sensor-data          # Send sensor readings (lanes + environmental data)
-GET /api/decision/latest       # Get AI decision
-```
+**ESP32:**
+- `POST /api/sensor-data` - Send sensor readings
+- `GET /api/decision/latest` - Get latest traffic decision
+
+**Dashboard:**
+- `GET /api/sensor-data` - Get sensor history
+- `GET /api/sensor-data/latest` - Get latest sensor data
+- `GET /api/decisions` - Get decision history
+
+**Other:**
+- `GET /health` - Server health check
+- `POST /api/decision/generate` - Manually trigger decision
 
 **Sensor Data Format:**
 ```json
 {
-  "lane1": 45,              // Distance in cm (required)
-  "lane2": 120,             // Distance in cm (required)
-  "lane3": 0,               // Distance in cm (required)
-  "lane4": 0,               // Distance in cm (required)
-  "temperature": 23.5,      // Temperature in °C (optional, BME280)
-  "humidity": 65.2,         // Humidity in % (optional, BME280)
-  "pressure": 1013.2        // Pressure in hPa (optional, BME280)
+  "lane1": {"carCount": 3, "firstTriggered": 1234567890},
+  "lane2": {"carCount": 0, "firstTriggered": 0},
+  "lane3": {"carCount": 1, "firstTriggered": 1234567900},
+  "lane4": {"carCount": 5, "firstTriggered": 1234567850},
+  "temperature": 23.5,
+  "humidity": 65.2,
+  "pressure": 1013.2
 }
 ```
 
-### 📊 Dashboard
-```
-GET /api/sensor-data           # Get sensor history
-GET /api/decisions             # Get decision history
-```
+## Testing
 
-### 🔧 Other
-```
-GET /health                    # Check server status
-POST /api/decision/generate    # Trigger AI analysis
-```
-
----
-
-## 🧪 Test
-
-### Automated Testing
-
-**Run all API tests:**
+**Run API tests:**
 ```bash
 node test-api.js
 ```
 
-**Simulate ESP32 continuous data (for dashboard testing):**
+**Simulate ESP32:**
 ```bash
 node simulate-esp32.js
 ```
-This sends realistic sensor data every 3 seconds, perfect for testing the live dashboard.
 
-### Manual Testing
-
-**Send sensor data with environmental data:**
-```powershell
-Invoke-RestMethod -Uri "http://localhost:5000/api/sensor-data" -Method Post -ContentType "application/json" -Body '{"lane1":45.5,"lane2":120.3,"lane3":80.7,"lane4":200.0,"temperature":23.5,"humidity":65.2,"pressure":1013.2}'
-```
-
-**Get latest decision:**
-```powershell
-Invoke-RestMethod http://localhost:5000/api/decision/latest
-```
-
----
-
-## 🌐 Deploy
-
-### Railway
+**Clear Firebase data:**
 ```bash
-railway login
-railway init
-railway up
+node clear-firebase.js
 ```
 
-**Add in Railway dashboard:**
-- `NODE_ENV=production`
-- `FIREBASE_DATABASE_URL=your-url`
-- Upload `serviceAccountKey.json`
+## Decision Algorithm
 
----
+The system analyzes sensor data and makes decisions:
+1. Prioritizes lane with most cars
+2. If tied, selects lane waiting longest
+3. Assigns green light duration (10 seconds)
+4. Returns decision to ESP32
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
-**Server won't start?**
-- ✅ Check Node.js version (needs v18+)
-- ✅ Make sure `.env` exists
-- ✅ Make sure `serviceAccountKey.json` exists
-
-**Can't connect to Firebase?**
-- ✅ Check `FIREBASE_DATABASE_URL` in `.env`
-- ✅ Check Firebase security rules allow read/write
-
----
-
-## 👨‍💻 Developer
-
-**AJ** - Backend & Database Developer
-
-## 📊 Status
-
-✅ **Complete and Production-Ready**
+- Check Node.js version (requires v18+)
+- Verify `.env` file exists
+- Ensure `serviceAccountKey.json` is in place
+- Check Firebase database URL is correct
 
 ---
 
