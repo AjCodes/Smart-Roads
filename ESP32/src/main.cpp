@@ -14,7 +14,7 @@
 #define ENABLE_WIFI true
 
 // Per-lane detection thresholds (cm)
-const int DETECTION_THRESHOLD[4] = {8, 5, 5, 5};  // Lane1=8cm, Lane2-4=5cm
+const int DETECTION_THRESHOLD[4] = {8, 5, 5, 5};
 
 const char* ssid = "AJ";
 const char* password = "#AJ787878";
@@ -29,6 +29,10 @@ Adafruit_BME280 bme;
 bool bmeFound = false;
 
 // Traffic Light LEDs - ALL 4 LANES
+// Lane 1: R=13, Y=12, G=14
+// Lane 2: R=15, Y=2,  G=4
+// Lane 3: R=18, Y=23, G=26
+// Lane 4: R=33, Y=27, G=16
 const int LED_R[4] = {13, 15, 18, 33};
 const int LED_Y[4] = {12, 2, 23, 27};
 const int LED_G[4] = {14, 4, 26, 16};
@@ -39,36 +43,36 @@ const int LED_G[4] = {14, 4, 26, 16};
 enum DetectionState { IDLE, CAR_PRESENT };
 DetectionState laneState[4] = {IDLE, IDLE, IDLE, IDLE};
 
-// Car counts and timestamps per lane
 int carCount[4] = {0, 0, 0, 0};
 unsigned long firstTriggered[4] = {0, 0, 0, 0};
 
 // ===========================================================
 // TRAFFIC LIGHT STATE MACHINE (Non-blocking!)
 // ===========================================================
-enum LightPhase { PHASE_IDLE, PHASE_GREEN, PHASE_YELLOW, PHASE_RED };
+enum LightPhase { PHASE_IDLE, PHASE_GREEN, PHASE_YELLOW };
 LightPhase currentPhase = PHASE_IDLE;
 int activeLane = -1;
-int laneToReset = -1;  // Reset this lane AFTER cycle completes
+int laneToReset = -1;
 unsigned long phaseStartTime = 0;
 int greenDuration = 0;
-const int YELLOW_DURATION = 3000;  // 3 seconds yellow
+const int YELLOW_DURATION = 3000;
 
 // Timing
 unsigned long lastSendTime = 0;
-unsigned long sendInterval = 2000;  // Send data every 2 seconds
+unsigned long sendInterval = 2000;
 unsigned long lastReadTime = 0;
-unsigned long readInterval = 5;     // Read sensors every 5ms - ALWAYS!
+unsigned long readInterval = 5;
 
-// Function declarations
+// Forward declarations
 long readDistanceCM(int laneIndex);
 void updateLaneState(int laneIndex, long distance);
 void initWiFi();
 bool sendDataToBackend(float temp, float humidity, float pressure);
 void setAllRed();
-void updateTrafficLights();  // Non-blocking traffic light update
+void updateTrafficLights();
 void startGreenPhase(int lane, int duration);
 void printStatus();
+void testLEDs();
 
 void setup() {
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);
@@ -77,12 +81,9 @@ void setup() {
 
   Serial.println("\n========================================");
   Serial.println("   SMART ROADS - CAR COUNTING MODE");
-  Serial.println("   NON-BLOCKING LED CONTROL");
-  Serial.println("   Thresholds: L1=8cm, L2-4=5cm");
-  Serial.println("   Scan interval: 5ms (always scanning!)");
   Serial.println("========================================\n");
 
-  // Initialize sensor pins
+  // Initialize all pins
   for (int i = 0; i < 4; i++) {
     pinMode(TRIG_PINS[i], OUTPUT);
     pinMode(ECHO_PINS[i], INPUT);
@@ -91,26 +92,51 @@ void setup() {
     pinMode(LED_G[i], OUTPUT);
   }
 
-  setAllRed();
-  Serial.println("✅ Sensors and LEDs initialized");
+  // Test all LEDs at startup
+  testLEDs();
 
   // Initialize BME280
   Wire.begin(21, 22);
   if (bme.begin(0x76) || bme.begin(0x77)) {
     bmeFound = true;
-    Serial.println("✅ BME280 sensor found!");
-  } else {
-    Serial.println("⚠️ BME280 not found");
+    Serial.println("BME280 found!");
   }
 
   #if ENABLE_WIFI
-    delay(2000);
+    delay(1000);
     initWiFi();
   #endif
 }
 
+void testLEDs() {
+  Serial.println("Testing LEDs for all 4 lanes...");
+  
+  for (int i = 0; i < 4; i++) {
+    Serial.printf("Lane %d: Testing R(pin%d) Y(pin%d) G(pin%d)\n", 
+                  i+1, LED_R[i], LED_Y[i], LED_G[i]);
+    
+    // Test RED
+    digitalWrite(LED_R[i], HIGH);
+    delay(200);
+    digitalWrite(LED_R[i], LOW);
+    
+    // Test YELLOW
+    digitalWrite(LED_Y[i], HIGH);
+    delay(200);
+    digitalWrite(LED_Y[i], LOW);
+    
+    // Test GREEN
+    digitalWrite(LED_G[i], HIGH);
+    delay(200);
+    digitalWrite(LED_G[i], LOW);
+  }
+  
+  setAllRed();
+  Serial.println("LED test complete - all RED now\n");
+}
+
 void loop() {
-  // ===== ALWAYS READ SENSORS - NEVER BLOCKED! =====
+  // ALWAYS read sensors
   if ((millis() - lastReadTime) >= readInterval) {
     for (int i = 0; i < 4; i++) {
       long distance = readDistanceCM(i);
@@ -119,12 +145,11 @@ void loop() {
     lastReadTime = millis();
   }
 
-  // ===== Update traffic lights (non-blocking) =====
+  // Update traffic lights (non-blocking)
   updateTrafficLights();
 
-  // ===== Send data to backend periodically =====
+  // Send data periodically
   if ((millis() - lastSendTime) >= sendInterval) {
-    // Only send if we're not mid-cycle or always send
     float temperature = bmeFound ? bme.readTemperature() : 0;
     float humidity = bmeFound ? bme.readHumidity() : 0;
     float pressure = bmeFound ? bme.readPressure() / 100.0F : 0;
@@ -135,7 +160,7 @@ void loop() {
       if (WiFi.status() == WL_CONNECTED) {
         sendDataToBackend(temperature, humidity, pressure);
       } else {
-        Serial.println("📶 WiFi: DISCONNECTED - Reconnecting...");
+        Serial.println("WiFi disconnected, reconnecting...");
         WiFi.reconnect();
       }
     #endif
@@ -144,66 +169,67 @@ void loop() {
   }
 }
 
-// ===== NON-BLOCKING traffic light state machine =====
 void updateTrafficLights() {
-  if (currentPhase == PHASE_IDLE) {
-    return;  // Nothing to do
-  }
+  if (currentPhase == PHASE_IDLE) return;
 
   unsigned long elapsed = millis() - phaseStartTime;
 
   if (currentPhase == PHASE_GREEN) {
     if (elapsed >= greenDuration) {
-      // Switch to yellow
       currentPhase = PHASE_YELLOW;
       phaseStartTime = millis();
       digitalWrite(LED_G[activeLane], LOW);
       digitalWrite(LED_Y[activeLane], HIGH);
-      Serial.printf("🟡 Lane %d YELLOW for 3s\n", activeLane + 1);
+      Serial.printf("YELLOW Lane %d for 3s\n", activeLane + 1);
     }
   }
   else if (currentPhase == PHASE_YELLOW) {
     if (elapsed >= YELLOW_DURATION) {
-      // Switch to red, cycle complete
       currentPhase = PHASE_IDLE;
       digitalWrite(LED_Y[activeLane], LOW);
       digitalWrite(LED_R[activeLane], HIGH);
-      Serial.printf("🔴 Lane %d RED - Cycle complete\n", activeLane + 1);
-      activeLane = -1;
+      Serial.printf("RED Lane %d - Cycle complete\n", activeLane + 1);
       
-      // Reset the winning lane counter after cycle completes
+      // Reset the lane counter now
       if (laneToReset >= 0 && laneToReset < 4) {
-        Serial.printf("🔄 Resetting Lane %d count (was %d)\n", laneToReset + 1, carCount[laneToReset]);
+        Serial.printf("Resetting Lane %d count (was %d)\n", laneToReset + 1, carCount[laneToReset]);
         carCount[laneToReset] = 0;
         firstTriggered[laneToReset] = 0;
         laneToReset = -1;
       }
+      activeLane = -1;
     }
   }
 }
 
-// Start a new green phase (called from backend response)
 void startGreenPhase(int lane, int duration) {
-  if (lane < 0 || lane >= 4) return;
+  if (lane < 0 || lane >= 4) {
+    Serial.printf("Invalid lane: %d\n", lane);
+    return;
+  }
   
-  // If already in a cycle, ignore new requests
   if (currentPhase != PHASE_IDLE) {
-    Serial.println("⚠️ Already in traffic cycle, ignoring new request");
+    Serial.println("Already in cycle, ignoring");
     return;
   }
 
+  Serial.printf(">>> Starting GREEN for Lane %d, duration %ds <<<\n", lane + 1, duration);
+
   activeLane = lane;
-  greenDuration = (duration - 3) * 1000;  // Convert to ms, subtract yellow time
+  greenDuration = (duration - 3) * 1000;
   currentPhase = PHASE_GREEN;
   phaseStartTime = millis();
 
+  // Set all RED first
   setAllRed();
+  
+  // Then set the active lane to GREEN
   digitalWrite(LED_R[lane], LOW);
   digitalWrite(LED_G[lane], HIGH);
-  Serial.printf("🟢 Lane %d GREEN for %ds\n", lane + 1, duration - 3);
+  
+  Serial.printf("GREEN Lane %d for %ds (pin %d HIGH)\n", lane + 1, duration - 3, LED_G[lane]);
 }
 
-// Read ultrasonic distance for a lane
 long readDistanceCM(int laneIndex) {
   digitalWrite(TRIG_PINS[laneIndex], LOW);
   delayMicroseconds(2);
@@ -212,55 +238,37 @@ long readDistanceCM(int laneIndex) {
   digitalWrite(TRIG_PINS[laneIndex], LOW);
 
   long duration = pulseIn(ECHO_PINS[laneIndex], HIGH, 30000);
-  
-  if (duration == 0) {
-    return 999;  // Timeout
-  }
-
+  if (duration == 0) return 999;
   return duration * 0.034 / 2;
 }
 
-// State machine: Update lane state and count cars
 void updateLaneState(int laneIndex, long distance) {
   int threshold = DETECTION_THRESHOLD[laneIndex];
   
   if (laneState[laneIndex] == IDLE && distance <= threshold && distance > 0) {
-    // Car just entered detection zone
     laneState[laneIndex] = CAR_PRESENT;
-    
-    // Record first triggered time if this is the first car
     if (carCount[laneIndex] == 0 && firstTriggered[laneIndex] == 0) {
       firstTriggered[laneIndex] = millis();
     }
-    
-    Serial.printf("🚗 Lane %d: Car ENTERED (dist: %ld cm)\n", laneIndex + 1, distance);
+    Serial.printf("Car ENTERED Lane %d (dist: %ld cm)\n", laneIndex + 1, distance);
   } 
   else if (laneState[laneIndex] == CAR_PRESENT && distance > threshold) {
-    // Car just left detection zone - COUNT IT!
     laneState[laneIndex] = IDLE;
     carCount[laneIndex]++;
-    
-    Serial.printf("✅ Lane %d: Car EXITED - Count: %d\n", laneIndex + 1, carCount[laneIndex]);
+    Serial.printf("Car EXITED Lane %d - Count: %d\n", laneIndex + 1, carCount[laneIndex]);
   }
 }
 
-// Print current status
 void printStatus() {
-  Serial.println("\n=====================================");
-  Serial.println("        CAR COUNTS");
-  Serial.println("=====================================");
-  
+  Serial.println("\n--- CAR COUNTS ---");
   for (int i = 0; i < 4; i++) {
-    const char* state = laneState[i] == CAR_PRESENT ? "🚗 CAR" : "✅ CLR";
-    const char* traffic = carCount[i] >= 5 ? "HEAVY" : carCount[i] >= 3 ? "MOD" : carCount[i] > 0 ? "LIGHT" : "NONE";
-    Serial.printf("L%d: %d cars [%s] %s\n", i + 1, carCount[i], traffic, state);
+    Serial.printf("L%d: %d cars\n", i + 1, carCount[i]);
   }
-  
   if (currentPhase != PHASE_IDLE) {
-    Serial.printf("🚦 Active: Lane %d (%s)\n", activeLane + 1, 
+    Serial.printf("Active: Lane %d (%s)\n", activeLane + 1, 
                   currentPhase == PHASE_GREEN ? "GREEN" : "YELLOW");
   }
-  Serial.println("=====================================\n");
+  Serial.println("------------------\n");
 }
 
 void initWiFi() {
@@ -269,7 +277,7 @@ void initWiFi() {
   WiFi.setTxPower(WIFI_POWER_2dBm);
   WiFi.setSleep(false);
   
-  Serial.printf("🔗 Connecting to: %s\n", ssid);
+  Serial.printf("Connecting to %s", ssid);
   WiFi.begin(ssid, password);
   
   int attempts = 0;
@@ -280,9 +288,9 @@ void initWiFi() {
   }
   
   if (WiFi.status() == WL_CONNECTED) {
-    Serial.printf("\n✅ Connected! IP: %s\n", WiFi.localIP().toString().c_str());
+    Serial.printf("\nConnected! IP: %s\n", WiFi.localIP().toString().c_str());
   } else {
-    Serial.println("\n❌ WiFi Failed");
+    Serial.println("\nWiFi Failed");
   }
 }
 
@@ -292,15 +300,12 @@ bool sendDataToBackend(float temp, float humidity, float pressure) {
   http.addHeader("Content-Type", "application/json");
   http.setTimeout(5000);
 
-  // Build JSON with nested lane objects
   StaticJsonDocument<1024> doc;
-  
   for (int i = 0; i < 4; i++) {
     String laneName = "lane" + String(i + 1);
     doc[laneName]["carCount"] = carCount[i];
     doc[laneName]["firstTriggered"] = firstTriggered[i];
   }
-  
   if (bmeFound) {
     doc["temperature"] = temp;
     doc["humidity"] = humidity;
@@ -314,35 +319,32 @@ bool sendDataToBackend(float temp, float humidity, float pressure) {
 
   if (httpResponseCode > 0) {
     String response = http.getString();
-    Serial.printf("✅ Response [%d]\n", httpResponseCode);
 
     StaticJsonDocument<2048> responseDoc;
     if (!deserializeJson(responseDoc, response)) {
-      // Check for decision
       if (responseDoc.containsKey("decision")) {
         const char* activeLaneStr = responseDoc["decision"]["activeLane"];
         int duration = responseDoc["decision"]["duration"];
         
         if (strcmp(activeLaneStr, "none") != 0) {
-          int laneNum = activeLaneStr[4] - '1';  // "lane1" -> 0
-          Serial.printf("🚦 Decision: %s for %ds\n", activeLaneStr, duration);
-          startGreenPhase(laneNum, duration);  // Non-blocking!
+          int laneNum = activeLaneStr[4] - '1';
+          Serial.printf("Decision: %s for %ds\n", activeLaneStr, duration);
+          startGreenPhase(laneNum, duration);
         }
       }
       
-      // Check for reset command
       if (responseDoc.containsKey("decision") && responseDoc["decision"].containsKey("resetLane")) {
         int resetLane = responseDoc["decision"]["resetLane"];
         if (resetLane >= 1 && resetLane <= 4) {
-          laneToReset = resetLane - 1;  // Store for reset after cycle
-          Serial.printf("� Lane %d marked for reset after cycle\n", resetLane);
+          laneToReset = resetLane - 1;
+          Serial.printf("Lane %d marked for reset\n", resetLane);
         }
       }
     }
     http.end();
     return true;
   } else {
-    Serial.printf("❌ Backend Failed! Error: %d\n", httpResponseCode);
+    Serial.printf("Backend error: %d\n", httpResponseCode);
   }
   http.end();
   return false;
